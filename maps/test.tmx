@@ -4,6 +4,6 @@
   <export target="test.lua" format="lua"/>
  </editorsettings>
  <objectgroup color="#5555ff" id="2" name="objects">
-  <object id="1" name="GROUND" x="14.5" y="348" width="881.5" height="122.667"/>
+  <object id="1" name="GROUND" x="14.5" y="348" width="1055.5" height="122.667"/>
  </objectgroup>
 </map>

@@ -23,6 +23,20 @@ local function load()
             newObj.text = objData[i].name
             newObj.fontHeight = fontUtils.getBestFitHeight(objData[i].height, "fonts/Kanit-Bold.ttf")
             newObj.font = fontUtils.getFont(frames.fonts, "fonts/Kanit-Bold.ttf", newObj.fontHeight)
+            newObj.blocks, newObj.blockWidth = fontUtils.getBlocks("fonts/Kanit-Bold.ttf", objData[i].width, newObj.fontHeight)
+            newObj.chars = {}
+            local charIdx = 1
+            for j=0, newObj.blocks - 1 do 
+                local char = {}
+                char.pos = j * newObj.blockWidth 
+                char.char = newObj.text:sub(charIdx,charIdx)
+                if charIdx > newObj.text:len() - 1 then 
+                    charIdx = 1
+                else
+                    charIdx = charIdx + 1
+                end
+                table.insert( newObj.chars,char )
+            end
             table.insert( newFrame.objects, newObj )     
         end
 
@@ -45,7 +59,13 @@ local function draw()
         love.graphics.setFont(obj.font)
         local x, y = obj.shape:computeAABB(obj.body:getX(), obj.body:getY(), 0)
         local magicScale = 0.455 -- Couldn't find a clean way to do this
-        love.graphics.print(obj.text, x, y - obj.fontHeight * magicScale)
+        for i = 1, #obj.chars do 
+            love.graphics.print(obj.chars[i].char, x + obj.chars[i].pos, y - obj.fontHeight * magicScale)
+        end
+        -- love.graphics.print(obj.text, x, y - obj.fontHeight * magicScale)
+
+        love.graphics.setFont(fontUtils.getFont(frames.fonts, "fonts/Kanit-Bold.ttf", 12))
+        love.graphics.print(#obj.chars, 10, 10)
     end
 end
 frames.draw = draw

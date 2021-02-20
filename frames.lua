@@ -29,6 +29,9 @@ local function load()
                 block.x = tokens[1]
                 block.y = tokens[2]
                 block.text = tokens[3]
+                block.body = love.physics.newBody(frames.world, block.x * 50 - 25, block.y * 50 )
+                block.shape = love.physics.newRectangleShape(50, 50)
+                block.fixture = love.physics.newFixture(block.body, block.shape)
                 table.insert(blocks, block)
             end
         end
@@ -43,7 +46,11 @@ frames.load = load
 
 local function draw()
     love.graphics.setFont(font)
+    
     for i=1, #frames.maps[1].blocks do
+        love.graphics.setColor(0.2, 0.2, 0.8, 0.1)
+        love.graphics.polygon("fill", frames.maps[1].blocks[i].body:getWorldPoints(frames.maps[1].blocks[i].shape:getPoints()))
+        love.graphics.setColor(0.8, 0.8, 0.8)
         love.graphics.print(frames.maps[1].blocks[i].text, (frames.maps[1].blocks[i].x * 50) - (font:getHeight() / 2), 
             (frames.maps[1].blocks[i].y * 50) - (font:getHeight() / 2))
     end
@@ -51,7 +58,7 @@ end
 frames.draw = draw
 
 local function update(dt)
-
+    frames.world.update(dt)
 end
 
 

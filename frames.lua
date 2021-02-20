@@ -2,70 +2,50 @@ local frames = {}
 frames.maps = {}
 frames.world = love.physics.newWorld(0, 10)
 frames.activeFrame = nil
-frames.fonts = {}
 
-local fontUtils = require "fontUtils"
+local font = love.graphics.newFont("fonts/Kanit-Bold.ttf", 70)
+
 
 local function load()
-    local function loadMap(fileName, maps)
-        local mapData = require("maps/" .. fileName)
-        local objData = mapData.layers[1].objects
-
-        local newFrame = {}
-        newFrame.name = fileName
-        newFrame.objects = {}
-        for i=1, #objData do 
-            local newObj = {}
-            newObj.body = love.physics.newBody(frames.world, objData[i].x + (objData[i].width / 2), 
-                objData[i].y + (objData[i].height / 2), "static")
-            newObj.shape = love.physics.newRectangleShape(objData[i].width, objData[i].height)
-            newObj.fixture = love.physics.newFixture(newObj.body, newObj.shape)
-            newObj.text = objData[i].name
-            newObj.fontHeight = fontUtils.getBestFitHeight(objData[i].height, "fonts/Kanit-Bold.ttf")
-            newObj.font = fontUtils.getFont(frames.fonts, "fonts/Kanit-Bold.ttf", newObj.fontHeight)
-            newObj.blocks, newObj.blockWidth = fontUtils.getBlocks("fonts/Kanit-Bold.ttf", objData[i].width, newObj.fontHeight)
-            newObj.chars = {}
-            local charIdx = 1
-            for j=0, newObj.blocks - 1 do 
-                local char = {}
-                char.pos = j * newObj.blockWidth 
-                char.char = newObj.text:sub(charIdx,charIdx)
-                if charIdx > newObj.text:len() - 1 then 
-                    charIdx = 1
-                else
-                    charIdx = charIdx + 1
-                end
-                table.insert( newObj.chars,char )
-            end
-            table.insert( newFrame.objects, newObj )     
+    local function loadMap(fileName)
+        function split(source, delimiters)
+            local elements = {}
+            local pattern = '([^'..delimiters..']+)'
+            string.gsub(source, pattern, function(value) elements[#elements + 1] =     value;  end);
+            return elements
         end
-
-        return newFrame
+        function trim(s)
+            return (s:gsub("^%s*(.-)%s*$", "%1"))
+        end
+    
+        local file = io.open(fileName, "r")
+        local content = file:read("*all")
+        local chars = split(content, ",")
+        local blocks = {}
+        for i = 2, #chars do -- Ignore first entry
+            if trim(chars[i]) ~= "" then
+                local tokens = split(chars[i], ":")
+                local block = {}
+                block.x = tokens[1]
+                block.y = tokens[2]
+                block.text = tokens[3]
+                table.insert(blocks, block)
+            end
+        end
+        map = {}
+        map.blocks = blocks
+        table.insert(frames.maps, map)
     end
 
-    table.insert( frames.maps, loadMap("test", frames.maps) )
-    frames.activeFrame = frames.maps[1]
+    loadMap("maps/test.csv")
 end
 frames.load = load
 
 local function draw()
-    local objs = frames.activeFrame.objects 
-    love.graphics.setColor(0.2, 0.2, 0.8, 0.5)
-    for i=1, #objs do 
-        local obj = objs[i]
-        love.graphics.polygon("fill", obj.body:getWorldPoints(obj.shape:getPoints()))
-        
-        love.graphics.setColor(1,1,1)
-        love.graphics.setFont(obj.font)
-        local x, y = obj.shape:computeAABB(obj.body:getX(), obj.body:getY(), 0)
-        local magicScale = 0.455 -- Couldn't find a clean way to do this
-        for i = 1, #obj.chars do 
-            love.graphics.print(obj.chars[i].char, x + obj.chars[i].pos, y - obj.fontHeight * magicScale)
-        end
-        -- love.graphics.print(obj.text, x, y - obj.fontHeight * magicScale)
-
-        love.graphics.setFont(fontUtils.getFont(frames.fonts, "fonts/Kanit-Bold.ttf", 12))
-        love.graphics.print(#obj.chars, 10, 10)
+    love.graphics.setFont(font)
+    for i=1, #frames.maps[1].blocks do
+        love.graphics.print(frames.maps[1].blocks[i].text, (frames.maps[1].blocks[i].x * 50) - (font:getHeight() / 2), 
+            (frames.maps[1].blocks[i].y * 50) - (font:getHeight() / 2))
     end
 end
 frames.draw = draw

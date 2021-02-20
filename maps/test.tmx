@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="1100" height="750" tilewidth="1" tileheight="1" infinite="0" nextlayerid="3" nextobjectid="2">
- <editorsettings>
-  <export target="test.lua" format="lua"/>
- </editorsettings>
- <objectgroup color="#5555ff" id="2" name="objects">
-  <object id="1" name="GROUND" x="14.5" y="348" width="1055.5" height="122.667"/>
- </objectgroup>
-</map>
